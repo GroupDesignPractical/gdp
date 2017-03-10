@@ -23,9 +23,9 @@ def getStockValues(ticker, strtDate, endDate, timeSplit, valCode):
     + '&collapse=' + timeSplit)
   outputResponse = None
   if (response.status != 200):
-    outputResponse = json.dumps("Error")
+    outputResponse = json.dumps('Error')
   else:
-    listResponse = json.loads(response.data.decode("utf-8"))
+    listResponse = json.loads(response.data.decode('utf-8'))
     fltrlistResponse = None
     if (valCode == -1):
       fltrlistResponse = listResponse['dataset']['data']
@@ -39,5 +39,5 @@ def main():
   print(getStockValues(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],
     int(sys.argv[5])))
 
-  if __name__ == "__main__" : main()
+  if __name__ == '__main__' : main()
 
