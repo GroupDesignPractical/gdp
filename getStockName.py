@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import urllib3
 import json
 import sys
@@ -9,6 +10,7 @@ def getStockNames(input_str):
   search_str = input_str.replace(' ', '%20')
   response = http.request('GET',
     'http://dev.markitondemand.com/Api/v2/Lookup/json?input=' + search_str)
+  outputResponse = None
   if (response.status != 200):
     # unlikely to go into this branch (only if API changes)
     outputResponse = json.dumps("Error")
@@ -24,7 +26,7 @@ def getStockNames(input_str):
         in ['NYSE', 'NASDAQ']],
       key = lambda f : f['Exchange'])
     outputResponse = json.dumps(fltrlistResponse)
-    return outputResponse
+  return outputResponse
 
 def main() :
   print(getStockNames(sys.argv[1]))
