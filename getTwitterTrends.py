@@ -6,10 +6,10 @@ def setOAuthConnection():
     # public repository
     f = open('credentials.txt', 'r')
     content = f.readlines()
-    consumer_token = content[0][: len(content[0]) - 1]
-    consumer_secret = content[1][: len(content[1]) - 1]
-    access_token = content[2][: len(content[2]) - 1]
-    access_secret = content[3]
+    consumer_token = content[0].strip()
+    consumer_secret = content[1].strip()
+    access_token = content[2].strip()
+    access_secret = content[3].strip()
 
     auth = tweepy.OAuthHandler(consumer_token, consumer_secret)
     auth.set_access_token(access_token, access_secret)
