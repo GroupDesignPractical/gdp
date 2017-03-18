@@ -1,4 +1,6 @@
 import tweepy
+import json
+import string
 
 
 def setOAuthConnection():
@@ -22,8 +24,19 @@ def setOAuthConnection():
     return api
 
 
+def containsLatinLetter(str):
+    for l in str:
+        if l in string.ascii_letters:
+            return True
+    return False
+
+
 def getTrends(api):  # consider adding location as parameter
-    return api.trends_place(1)  # 1 for worldwide
+    trends = (api.trends_place(1))  # 1 for worldwide;
+    trends = [trend for trend in trends[0]['trends'] if
+              trend['tweet_volume'] is not None and
+              containsLatinLetter(trend['name'])]
+    return json.dumps(trends)
 
 
 def main():
