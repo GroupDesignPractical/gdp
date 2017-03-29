@@ -3,7 +3,6 @@ import urllib3
 import certifi
 import json
 import sys
-import datetime
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 outputResponse = None
@@ -58,9 +57,9 @@ def getExchangeRate(input_str, strt_date, end_date, val):
 
     response = http.request('GET', api_url)
     if (response.status != 200):
-        outputResponse = json.dumps("Error")
+        outputResponse = json.dumps('Error')
     else:
-        strResponse = response.data.decode("utf-8")
+        strResponse = response.data.decode('utf-8')
         listResponse = json.loads(strResponse)['dataset']['data']
         fltrlistResponse = [i for i in listResponse
                             if (strt_date <= i[0] <= end_date)]
@@ -71,4 +70,4 @@ def getExchangeRate(input_str, strt_date, end_date, val):
 def main():
     print(getExchangeRate(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
 
-if __name__ == "__main__": main()
+if __name__ == '__main__': main()
