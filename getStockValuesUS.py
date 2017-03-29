@@ -39,5 +39,5 @@ def main():
   print(getStockValues(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],
     int(sys.argv[5])))
 
-  if __name__ == '__main__' : main()
+if __name__ == '__main__' : main()
 
