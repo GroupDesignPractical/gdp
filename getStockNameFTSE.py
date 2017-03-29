@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import json
