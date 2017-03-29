@@ -38,4 +38,4 @@ def main():
     print(getStockValuesFTSE(sys.argv[1], sys.argv[2], sys.argv[3],
           int(sys.argv[4])))
 
-if __name__ == "__main__": main()
+if __name__ == '__main__': main()
