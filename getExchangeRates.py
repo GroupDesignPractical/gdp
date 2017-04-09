@@ -37,37 +37,37 @@ country_conversion = [
 
 
 # All arguments but val are strings.
-# Input_str is the name of country, dates are in the format 'yyyy-mm-dd'
-# Val encodes the currency you want to convert from
+# input_str is the name of country, dates are in the format 'yyyy-mm-dd'
+# val encodes the currency you want to convert from
 # Possible values for val: 0 : USD,    1 : GBP,    2 : EUR
 def getExchangeRate(input_str, strt_date, end_date, val):
-    if (val == 0):
-        # finds the appropriate API code, and constructs the url
-        curr_str = [i[2] for i in country_conversion if input_str == i[0]][0]
-        api_url = 'https://www.quandl.com/api/v3/datasets/BOE/' + curr_str \
-            + '.json'
-    elif (val == 1):
-        curr_str = [i[3] for i in country_conversion if input_str == i[0]][0]
-        api_url = 'https://www.quandl.com/api/v3/datasets/BOE/' + curr_str \
-            + '.json'
-    else:
-        curr_str = [i[1] for i in country_conversion if input_str == i[0]][0]
-        api_url = 'https://www.quandl.com/api/v3/datasets/ECB/EUR' + curr_str \
-            + '.json'
+  if (val == 0):
+    # finds the appropriate API code, and constructs the url
+    curr_str = [i[2] for i in country_conversion if input_str == i[0]][0]
+    api_url = 'https://www.quandl.com/api/v3/datasets/BOE/' + curr_str \
+        + '.json'
+  elif (val == 1):
+    curr_str = [i[3] for i in country_conversion if input_str == i[0]][0]
+    api_url = 'https://www.quandl.com/api/v3/datasets/BOE/' + curr_str \
+      + '.json'
+  else:
+    curr_str = [i[1] for i in country_conversion if input_str == i[0]][0]
+    api_url = 'https://www.quandl.com/api/v3/datasets/ECB/EUR' + curr_str \
+      + '.json'
 
     response = http.request('GET', api_url)
     if (response.status != 200):
-        outputResponse = json.dumps('Error')
+      outputResponse = json.dumps('Error')
     else:
-        strResponse = response.data.decode('utf-8')
-        listResponse = json.loads(strResponse)['dataset']['data']
-        fltrlistResponse = [i for i in listResponse
-                            if (strt_date <= i[0] <= end_date)]
-        outputResponse = json.dumps(fltrlistResponse)
+      strResponse = response.data.decode('utf-8')
+      listResponse = json.loads(strResponse)['dataset']['data']
+      fltrlistResponse = [i for i in listResponse
+        if (strt_date <= i[0] <= end_date)]
+      outputResponse = json.dumps(fltrlistResponse)
     return outputResponse
 
 
 def main():
-    print(getExchangeRate(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
+  print(getExchangeRate(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
 
 if __name__ == '__main__': main()
