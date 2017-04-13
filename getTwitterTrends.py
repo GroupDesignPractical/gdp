@@ -1,6 +1,8 @@
 import tweepy
 import json
 import string
+import time
+import sys
 
 
 def setOAuthConnection():
@@ -39,9 +41,26 @@ def getTrends(api):  # consider adding location as parameter
     return json.dumps(trends)
 
 
+def getTweetsAbout(trendQuery, lang, api):
+    tweets = api.search(trendQuery, lang) # [ SearchResults object ]
+    return tweets;
+
+
 def main():
     api = setOAuthConnection()
-    print(getTrends(api))
+    trends = json.loads(getTrends(api))
+    print(trends)
+    tweets = [getTweetsAbout(trend['query'], "en", api) for trend in trends
+
+    # deal with non_bmp characters (e.g emojis) when printing for test
+    non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
+
+    
+    for tweet in tweets[0][:5]:
+        print(str(tweet._json['text']).translate(non_bmp_map))
+    print("\n");
+
+    # print(tweets[0][0])
 
 if __name__ == "__main__":
     main()
