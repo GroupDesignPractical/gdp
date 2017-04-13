@@ -2,6 +2,7 @@
 import tweepy
 import json
 import string
+import sys
 
 def setOAuthConnection():
   # credentials are confidential and should not be shared in the
@@ -37,22 +38,24 @@ def getTrends(api):  # consider adding location as parameter
   return json.dumps(trends)
 
 def getTweetsAbout(trendQuery, lang, api):
-  tweets = api.search(trendQuery, lang) # [ SearchResults object ]
+  tweets = api.search(trendQuery, lang, count = 5)
   return tweets;
 
 def main():
   api = setOAuthConnection()
   trends = json.loads(getTrends(api))
   print(trends)
-  tweets = [getTweetsAbout(trend['query'], "en", api) for trend in trends
+  tweets = [getTweetsAbout(trend['query'], "en", api) for trend in trends]
 
-  # deal with non_bmp characters (e.g emojis) when printing for test
+  # deal with non-bmp characters (e.g emojis) when printing for test
   non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 
-  
-  for tweet in tweets[0][:5]:
+  for i in range(0, len(trends)):
+    print("    " + trends[i]["name"] + "  -  " + str(trends[i]["tweet_volume"]))
+    for tweet in tweets[i]:
+      print("Tweet text:  ");
       print(str(tweet._json['text']).translate(non_bmp_map))
-  print("\n");
+    print("\n");
 
   # print(tweets[0][0])
 
