@@ -57,8 +57,6 @@ def main():
       print(str(tweet._json['text']).translate(non_bmp_map))
     print("\n");
 
-  # print(tweets[0][0])
-
 
 if __name__ == '__main__':
   main()
