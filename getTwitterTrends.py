@@ -59,7 +59,7 @@ def interpretSentimentAnalysis(value):
 
 
 def getSentimentAnalysis(tweetTextList):
-  coeffs = indicoio.sentiment(tweetTextList, language='detect')
+  coeffs = indicoio.sentiment_hq(tweetTextList, language='detect')
   interpretations = [interpretSentimentAnalysis(coeff) for coeff in coeffs]
   return (coeffs, interpretations)
 
