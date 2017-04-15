@@ -1,40 +1,48 @@
-import facebook
 import sys
 import json
 import requests
 import urllib
+import time
+import datetime
 
 
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 
 
-def initGraph():
+def getToken():
   f = open('fbToken.txt', 'r')
   content = f.readlines()
   accessToken = content[0].strip()
-  return facebook.GraphAPI(access_token=accessToken)
+  return accessToken
 
 
-def getPostId(graph, newspage, path, maxCount):
-  allPosts = graph.get_object(id=newspage, fields='posts')['posts']
-  maxPageCount = maxCount / 25
-  if maxCount % 25 != 0:
-    maxPageCount += 1
+def getPostId(apiToken, newspage, path, date):
+  twoDays = 48 * 60 * 60
+  allLinks = requests.get('https://graph.facebook.com'
+                          '/v2.8/' + newspage +
+                          '/posts?' +
+                          'fields=link' +
+                          '&format=json' +
+                          '&access_token=' + apiToken +
+                          '&limit=100' +
+                          '&since=' + str(date - twoDays) +
+                          '&until=' + str(date + twoDays)).json()['data']
   pageCount = 0
   postId = None
-  while postId is None and allPosts['data'] != [] and pageCount < maxPageCount:
+  while postId is None and allLinks != [] and pageCount < 15:
     pageCount += 1
-    allPostIds = [p['id'] for p in allPosts['data']]
-    links = graph.get_objects(ids=allPostIds, fields='link')
+    
+    index = 0
     # compare url hierarchic paths of given link and post link
-    postIds = [pId for pId in allPostIds
-               if getUrlPath(unshortenUrl(links[pId]['link']), 0) ==
-               path]
-    print(postIds)
-    if postIds != []:
-      postId = postIds[0]
+    while index < len(allLinks) and getUrlPath(
+          unshortenUrl(allLinks[index]['link']), 0) != path:
+      index += 1
+      
+    if index < len(allLinks):
+      postId = allLinks[index]['id']
     else:
-      allPosts = requests.get(allPosts['paging']['next']).json()
+      allLinks = requests.get(allLinks['paging']['next']).json()['data']
+      
   return postId
 
 
@@ -49,19 +57,23 @@ def unshortenUrl(url):
   return requests.head(url, allow_redirects=True).url
 
 
-def getReactions(graph, newspage, link, maxCount):
+def getReactions(apiToken, newspage, link, date):
     path = getUrlPath(unshortenUrl(link), 1)
-    postId = getPostId(graph, newspage, path, maxCount)
+    postId = getPostId(apiToken, newspage, path, date)
     if postId is None:
       print("No facebook post about this article has been found.")
       return None
-    reactions = graph.get_object(id=postId,
-                                 fields='''reactions.type(LIKE).summary(true).as(like),
-                                         reactions.type(WOW).summary(true).as(wow),
-                                         reactions.type(LOVE).summary(true).as(love),
-                                         reactions.type(HAHA).summary(true).as(haha),
-                                         reactions.type(ANGRY).summary(true).as(angry),
-                                         reactions.type(SAD).summary(true).as(sad)''')
+    reactions = requests.get('https://graph.facebook.com'
+                             '/v2.8/' +
+                             str(postId) +
+                             '''?fields=reactions.type(LIKE).summary(true).as(like),
+                                       reactions.type(WOW).summary(true).as(wow),
+                                       reactions.type(LOVE).summary(true).as(love),
+                                       reactions.type(HAHA).summary(true).as(haha),
+                                       reactions.type(ANGRY).summary(true).as(angry),
+                                       reactions.type(SAD).summary(true).as(sad)''' +
+                             '&format=json' +
+                             '&access_token=' + apiToken).json()
     reactionSummary = {}
     reactionSummary['like'] = reactions['like']['summary']['total_count']
     reactionSummary['wow'] = reactions['wow']['summary']['total_count']
@@ -75,17 +87,13 @@ def getReactions(graph, newspage, link, maxCount):
 
 #  argv[1] - Name of Facebook news page (e. g. bbcnews)
 #  argv[2] - Link to article
-#  argv[3] - (optional) number of posts to search through
-#            (defaults to 25, i.e. one page)
+#  argv[3] - Date of article - yyyy-mm-dd
 def main():
-  graph = initGraph()
+  accessToken = getToken()
   newspage = sys.argv[1]
   articleLink = sys.argv[2]
-  if len(sys.argv) > 3:
-    maxCount = int(sys.argv[3])
-  else:
-    maxCount = 25
-  reactions = getReactions(graph, newspage, articleLink, maxCount)
+  date = time.mktime(datetime.datetime.strptime(sys.argv[3], "%Y-%m-%d").timetuple())
+  reactions = getReactions(accessToken, newspage, articleLink, date)
   if reactions is not None:
     print(reactions)
 
