@@ -67,20 +67,21 @@ def getSentimentAnalysis(tweetTextList):
 def analyseTrend(trend, api):
   tweets = getTweetsAbout(trend['query'], "en", api, 5)
   tweetTexts = [tweet._json['text'] for tweet in tweets]
-  (coeffs, interpretations) = getSentimentAnalysis(tweetTexts)
+  if tweetTexts != []:
+    (coeffs, interpretations) = getSentimentAnalysis(tweetTexts)
 
-  # debugging
-  # deal with non-bmp characters (e.g emojis) when printing for test
-  non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
-  print("\n    " + trend["name"] + "  -  " + str(trend["tweet_volume"]))
-  for i in range(0, len(tweets)):
-    print("Tweet text #" + str(i + 1) + ":   -- Sentiment Analysis: " +
-          str(coeffs[i]) + "  - " + interpretations[i])
-    print(tweetTexts[i].translate(non_bmp_map))
+    # debugging
+    # deal with non-bmp characters (e.g emojis) when printing for test
+    non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
+    print("\n    " + trend["name"] + "  -  " + str(trend["tweet_volume"]))
+    for i in range(0, len(tweets)):
+      print("Tweet text #" + str(i + 1) + ":   -- Sentiment Analysis: " +
+            str(coeffs[i]) + "  - " + interpretations[i])
+      print(tweetTexts[i].translate(non_bmp_map))
 
-  mean = sum(coeffs) / len(coeffs)
-  trend['sentiment_result'] = mean
-  trend['sentiment_interpretation'] = interpretSentimentAnalysis(mean)
+    mean = sum(coeffs) / len(coeffs)
+    trend['sentiment_result'] = mean
+    trend['sentiment_interpretation'] = interpretSentimentAnalysis(mean)
   return trend
 
 
