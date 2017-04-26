@@ -51,7 +51,7 @@ def getUrlPath(url, flag):
 
 def unshortenUrl(url):
   try:
-    return requests.head(url, allow_redirects=True, max_redirects=3).url
+    return requests.head(url, allow_redirects=True).url
   except:
     return url
 
