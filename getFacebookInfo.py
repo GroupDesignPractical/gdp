@@ -26,23 +26,27 @@ def getPostId(apiToken, newspage, path, date):
                           '&access_token=' + apiToken +
                           '&limit=100' +
                           '&since=' + str(date - twoDays) +
-                          '&until=' + str(date + twoDays)).json()['data']
+                          '&until=' + str(date + twoDays)).json()
   pageCount = 0
   postId = None
   while postId is None and allLinks != [] and pageCount < 15:
     pageCount += 1
-    
+    print("Page: " + str(pageCount) + "\n")
+
     index = 0
     # compare url hierarchic paths of given link and post link
-    while index < len(allLinks) and getUrlPath(
-          unshortenUrl(allLinks[index]['link']), 0) != path:
+    while index < len(allLinks['data']) and getUrlPath(
+          unshortenUrl(allLinks['data'][index]['link']), 0) != path:
       index += 1
-      
-    if index < len(allLinks):
-      postId = allLinks[index]['id']
+
+    if index < len(allLinks['data']):
+      postId = allLinks['data'][index]['id']
     else:
-      allLinks = requests.get(allLinks['paging']['next']).json()['data']
-      
+      if 'paging' in allLinks:
+        allLinks = requests.get(allLinks['paging']['next']).json()
+      else:
+         allLinks = []
+
   return postId
 
 
@@ -54,7 +58,10 @@ def getUrlPath(url, flag):
 
 
 def unshortenUrl(url):
-  return requests.head(url, allow_redirects=True).url
+  try:
+    return requests.head(url, allow_redirects=True, max_redirects=3).url
+  except:
+    return url
 
 
 def getReactions(apiToken, newspage, link, date):
