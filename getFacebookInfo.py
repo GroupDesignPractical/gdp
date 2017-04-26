@@ -5,16 +5,13 @@ import urllib
 import time
 import datetime
 
-
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
-
 
 def getToken():
   f = open('fbToken.txt', 'r')
   content = f.readlines()
   accessToken = content[0].strip()
   return accessToken
-
 
 def getPostId(apiToken, newspage, path, date):
   twoDays = 48 * 60 * 60
@@ -32,13 +29,11 @@ def getPostId(apiToken, newspage, path, date):
   while postId is None and allLinks != [] and pageCount < 15:
     pageCount += 1
     print("Page: " + str(pageCount) + "\n")
-
     index = 0
     # compare url hierarchic paths of given link and post link
     while index < len(allLinks['data']) and getUrlPath(
           unshortenUrl(allLinks['data'][index]['link']), 0) != path:
       index += 1
-
     if index < len(allLinks['data']):
       postId = allLinks['data'][index]['id']
     else:
@@ -46,9 +41,7 @@ def getPostId(apiToken, newspage, path, date):
         allLinks = requests.get(allLinks['paging']['next']).json()
       else:
          allLinks = []
-
   return postId
-
 
 def getUrlPath(url, flag):
   path = urllib.parse.urlparse(url)[2]
@@ -56,13 +49,11 @@ def getUrlPath(url, flag):
     print(path)
   return path
 
-
 def unshortenUrl(url):
   try:
     return requests.head(url, allow_redirects=True, max_redirects=3).url
   except:
     return url
-
 
 def getReactions(apiToken, newspage, link, date):
     path = getUrlPath(unshortenUrl(link), 1)
@@ -91,7 +82,6 @@ def getReactions(apiToken, newspage, link, date):
     # print(str(reactions).translate(non_bmp_map))
     return json.dumps(reactionSummary)
 
-
 #  argv[1] - Name of Facebook news page (e. g. bbcnews)
 #  argv[2] - Link to article
 #  argv[3] - Date of article - yyyy-mm-dd
@@ -103,7 +93,6 @@ def main():
   reactions = getReactions(accessToken, newspage, articleLink, date)
   if reactions is not None:
     print(reactions)
-
 
 if __name__ == '__main__':
   main()
